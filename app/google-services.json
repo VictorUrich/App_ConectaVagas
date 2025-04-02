@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "873388694029",
+    "project_id": "appestagio-25655",
+    "storage_bucket": "appestagio-25655.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:873388694029:android:47a5b657df2b63472bd344",
+        "android_client_info": {
+          "package_name": "com.example.conectavagas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGlNLB6eDGFHdnRTitYWiShI6j3KKtjqY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
