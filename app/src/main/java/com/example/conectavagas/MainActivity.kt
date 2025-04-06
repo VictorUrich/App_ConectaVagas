@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
                         composable("LoadingScreen") {
                             LoadingScreen().LoadingScreenContent(navController)
                         }
-                
+
                     }
                 }
             }

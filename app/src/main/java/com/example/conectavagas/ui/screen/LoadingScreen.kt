@@ -22,8 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 class LoadingScreen {
     @Composable
     fun LoadingScreenContent (navController: NavController){
-        val auth = FirebaseAuth.getInstance();
-        val firestore = FirebaseFirestore.getInstance();
+        val auth = FirebaseAuth.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
 
         LaunchedEffect (Unit){
             val currentUser = auth.currentUser;
