@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class LoginScreen {
@@ -36,6 +37,7 @@ class LoginScreen {
         val password = remember { mutableStateOf("") }
         val snackbarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
+        val auth =  remember { FirebaseAuth.getInstance() }
 
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -71,15 +73,15 @@ class LoginScreen {
                 )
 
                 Button(onClick = {
-                    val isValid = validateLogin(email.value, password.value)
-                    if (isValid) {
-                        onLoginClick()
-                    } else {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Email ou senha inválidos.")
+                    auth.signInWithEmailAndPassword(email.value, password.value).addOnCompleteListener { task ->
+                        if (task.isSuccessful){
+                            onLoginClick()
+                        } else {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Erro: ${task.exception?.message}")
+                            }
                         }
-                    }
-                }, modifier = Modifier.padding(16.dp)) {
+                    }}, modifier = Modifier.padding(16.dp)) {
                     Text(text = "Login")
                 }
 

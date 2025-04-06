@@ -32,7 +32,7 @@ class RegisterScreen {
     private val authManager = FirebaseAuthManager()
 
     @Composable
-    fun RegisterScreenContent(onLoginClick: () -> Unit) {
+    fun RegisterScreenContent(onBackToLogin: () -> Unit, onRegisterClick: () -> Unit) {
         val email = remember { mutableStateOf("") }
         val password = remember { mutableStateOf("") }
         val confirmPassword = remember { mutableStateOf("") }
@@ -84,7 +84,7 @@ class RegisterScreen {
                                     coroutineScope.launch {
                                         snackbarHostState.showSnackbar("Cadastro realizado com sucesso!")
                                     }
-                                    onLoginClick()
+                                    onRegisterClick()
                                 } else {
                                     coroutineScope.launch{
                                         snackbarHostState.showSnackbar("Erro: $message")
@@ -102,7 +102,7 @@ class RegisterScreen {
                 }
                 Text(
                     text = "Já tem uma conta? Faça login.",
-                    modifier = Modifier.padding(top = 16.dp).clickable { onLoginClick() },
+                    modifier = Modifier.padding(top = 16.dp).clickable { onBackToLogin() },
                     style = TextStyle(color = Color.Blue)
                 )
 
@@ -114,7 +114,7 @@ class RegisterScreen {
     @Preview(showBackground = true)
     @Composable
     fun RegisterScreenPreview() {
-        RegisterScreenContent(onLoginClick = {})
+        RegisterScreenContent(onBackToLogin = {}, onRegisterClick = {})
     }
 
 }
