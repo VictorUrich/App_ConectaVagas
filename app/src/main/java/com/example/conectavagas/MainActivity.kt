@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.conectavagas.ui.screen.AdminScreen
 import com.example.conectavagas.ui.screen.ForgotPasswordScreen
 import com.example.conectavagas.ui.screen.LoadingScreen
 import com.example.conectavagas.ui.screen.LoginScreen
@@ -52,6 +53,10 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("LoadingScreen") {
                             LoadingScreen().LoadingScreenContent(navController)
+                        }
+
+                        composable("AdminScreen") {
+                            AdminScreen().adminScreenContent(navController)
                         }
 
                     }

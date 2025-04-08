@@ -34,7 +34,7 @@ class LoadingScreen {
                         val tipo = document.getString("tipo");
 
                         when(tipo){
-                            "admin" -> navController.navigate("AdminHomeScreen"){
+                            "admin" -> navController.navigate("AdminScreen"){
                                 popUpTo("LoadingScreen") {inclusive = true}
                             }
                             "cliente" -> navController.navigate("ClienteHomeScreen"){
