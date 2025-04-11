@@ -37,7 +37,7 @@ class LoadingScreen {
                             "admin" -> navController.navigate("AdminScreen"){
                                 popUpTo("LoadingScreen") {inclusive = true}
                             }
-                            "cliente" -> navController.navigate("ClienteHomeScreen"){
+                            "cliente" -> navController.navigate("ClientScreen"){
                                 popUpTo("LoadingScreen") {inclusive = true}
                             }
                             else -> {

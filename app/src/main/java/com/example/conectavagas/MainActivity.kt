@@ -1,5 +1,6 @@
 package com.example.conectavagas
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,10 +13,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.conectavagas.ui.screen.AdminScreen
+import com.example.conectavagas.ui.screen.ClientScreenContent
+import com.example.conectavagas.ui.screen.DetalhesVagaScreen
 import com.example.conectavagas.ui.screen.ForgotPasswordScreen
 import com.example.conectavagas.ui.screen.LoadingScreen
 import com.example.conectavagas.ui.screen.LoginScreen
 import com.example.conectavagas.ui.screen.RegisterScreen
+import com.example.conectavagas.ui.screen.Vaga
 import com.example.conectavagas.ui.theme.ConectaVagasTheme
 
 class MainActivity : ComponentActivity() {
@@ -58,6 +62,35 @@ class MainActivity : ComponentActivity() {
                         composable("AdminScreen") {
                             AdminScreen().adminScreenContent(navController)
                         }
+
+                        composable("ClientScreen") {
+                            ClientScreenContent(navController)
+                        }
+
+                        composable(route = "detalhes/{titulo}/{empresa}/{local}/{beneficios}/{horario}/{atividades}/{requisitos}/{contato}") { backStackEntry ->
+                            val titulo = Uri.decode(backStackEntry.arguments?.getString("titulo") ?: "")
+                            val empresa = Uri.decode(backStackEntry.arguments?.getString("empresa") ?: "")
+                            val local = Uri.decode(backStackEntry.arguments?.getString("local") ?: "")
+                            val beneficios = Uri.decode(backStackEntry.arguments?.getString("beneficios") ?: "")
+                            val horario = Uri.decode(backStackEntry.arguments?.getString("horario") ?: "")
+                            val atividades = Uri.decode(backStackEntry.arguments?.getString("atividades") ?: "")
+                            val requisitos = Uri.decode(backStackEntry.arguments?.getString("requisitos") ?: "")
+                            val contato = Uri.decode(backStackEntry.arguments?.getString("contato") ?: "")
+
+                            val vaga = Vaga(
+                                titulo = titulo,
+                                empresa = empresa,
+                                local = local,
+                                beneficios = beneficios,
+                                horario = horario,
+                                atividades = atividades,
+                                requisitos = requisitos,
+                                contato = contato
+                            )
+
+                            DetalhesVagaScreen().DetalhesVagaScreenContent(navController = navController, vaga = vaga)
+                        }
+
 
                     }
                 }
