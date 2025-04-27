@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.conectavagas.ui.screen.AdminScreen
 import com.example.conectavagas.ui.screen.ClientScreenContent
 import com.example.conectavagas.ui.screen.DetalhesVagaScreen
+import com.example.conectavagas.ui.screen.EditScreen
 import com.example.conectavagas.ui.screen.ForgotPasswordScreen
 import com.example.conectavagas.ui.screen.LoadingScreen
 import com.example.conectavagas.ui.screen.LoginScreen
@@ -65,6 +66,19 @@ class MainActivity : ComponentActivity() {
 
                         composable("ClientScreen") {
                             ClientScreenContent(navController)
+                        }
+                        composable(route = "edit/{vagaId}/{titulo}/{empresa}/{beneficios}/{horario}/{local}/{atividades}/{requisitos}/{contato}"){
+                            val vagaId = it.arguments?.getString("vagaId")
+                            val titulo = Uri.decode(it.arguments?.getString("titulo") ?: "")
+                            val empresa = Uri.decode(it.arguments?.getString("empresa") ?: "")
+                            val beneficios = Uri.decode(it.arguments?.getString("beneficios") ?: "")
+                            val horario = Uri.decode(it.arguments?.getString("horario") ?: "")
+                            val local = Uri.decode(it.arguments?.getString("local") ?: "")
+                            val atividades = Uri.decode(it.arguments?.getString("atividades") ?: "")
+                            val requisitos = Uri.decode(it.arguments?.getString("requisitos") ?: "")
+                            val contato = Uri.decode(it.arguments?.getString("contato") ?: "")
+
+                            EditScreen(navController = navController, vagaId = vagaId, initialTitulo = titulo, initialEmpresa = empresa, initialBeneficios = beneficios, initialHorario = horario, initialLocal = local, initialAtividades = atividades, initialRequisitos = requisitos, initialContato = contato )
                         }
 
                         composable(route = "detalhes/{titulo}/{empresa}/{local}/{beneficios}/{horario}/{atividades}/{requisitos}/{contato}") { backStackEntry ->
