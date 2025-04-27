@@ -85,7 +85,11 @@ fun ClientScreenContent(navController: NavController) {
                     empresa = vaga.empresa,
                     local = vaga.local,
                     onCardClick = {
-                        // seu código pra ver detalhes (ok)
+                        navController.navigate(
+                            "detalhes/${Uri.encode(vaga.titulo)}/${Uri.encode(vaga.empresa)}/${Uri.encode(vaga.local)}/" +
+                                    "${Uri.encode(vaga.beneficios)}/${Uri.encode(vaga.horario)}/${Uri.encode(vaga.atividades)}/" +
+                                    "${Uri.encode(vaga.requisitos)}/${Uri.encode(vaga.contato)}"
+                        )
                     },
                     onEditClick = {
                         navController.navigate(
