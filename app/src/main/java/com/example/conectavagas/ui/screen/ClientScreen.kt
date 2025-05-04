@@ -7,14 +7,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.conectavagas.ui.components.VagaCard
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
+
+
+
+
 
 @Keep
 data class Vaga(
@@ -29,92 +43,176 @@ data class Vaga(
     val contato: String = ""
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientScreenContent(navController: NavController) {
     val vagas = remember { mutableStateListOf<Vaga>() }
     var isAdmin by remember { mutableStateOf(false) }
+    var vagaSelecionadaParaExclusao by remember { mutableStateOf<Vaga?>(null) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         val db = FirebaseFirestore.getInstance()
         val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
         val userId = auth.currentUser?.uid
 
-        // Primeiro: busca o tipo do usuário
         userId?.let { id ->
-            db.collection("users").document(id).get()
+            db.collection("usuarios").document(id).get()
                 .addOnSuccessListener { document ->
                     val tipo = document.getString("tipo")
                     isAdmin = tipo == "admin"
                 }
-                .addOnFailureListener {
-                    println("Erro ao buscar tipo do usuário: ${it.message}")
-                    isAdmin = false
-                }
         }
 
-        // Depois: busca as vagas
         db.collection("vagas").get()
             .addOnSuccessListener { result ->
                 vagas.clear()
                 for (document in result) {
-                    val vaga = document.toObject(Vaga::class.java)
-                        .copy(id = document.id)
+                    val vaga = document.toObject(Vaga::class.java).copy(id = document.id)
                     vagas.add(vaga)
-                    println("Vaga carregada: $vaga")
                 }
             }
-            .addOnFailureListener {
-                println("Erro ao carregar vagas: ${it.message}")
-            }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-            text = "Vagas Disponíveis",
-            style = MaterialTheme.typography.headlineSmall
-        )
+    // Host para exibir Snackbar somente quando chamado
+    Box(modifier = Modifier.fillMaxSize()) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Column(modifier = Modifier.padding(16.dp)) {
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(vagas) { vaga ->
-                VagaCard(
-                    titulo = vaga.titulo,
-                    empresa = vaga.empresa,
-                    local = vaga.local,
-                    onCardClick = {
-                        navController.navigate(
-                            "detalhes/${Uri.encode(vaga.titulo)}/${Uri.encode(vaga.empresa)}/${Uri.encode(vaga.local)}/" +
-                                    "${Uri.encode(vaga.beneficios)}/${Uri.encode(vaga.horario)}/${Uri.encode(vaga.atividades)}/" +
-                                    "${Uri.encode(vaga.requisitos)}/${Uri.encode(vaga.contato)}"
-                        )
+            Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.End){
+               IconButton(onClick = {
+                   FirebaseAuth.getInstance().signOut()
+                   navController.navigate("LoginScreen"){
+                       popUpTo("ClientScreen"){inclusive = true}
+                   }
+               }
+               ) { Icon(
+                   imageVector = Icons.Default.ExitToApp,
+                   contentDescription = "Sair"
+               )
+               }
+
+            }
+
+            Text(
+                text = "Vagas Disponíveis",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(vagas) { vaga ->
+                    VagaCard(
+                        titulo = vaga.titulo,
+                        empresa = vaga.empresa,
+                        local = vaga.local,
+                        onCardClick = {
+                            navController.navigate(
+                                "detalhes/${Uri.encode(vaga.titulo)}/${Uri.encode(vaga.empresa)}/${Uri.encode(vaga.local)}/" +
+                                        "${Uri.encode(vaga.beneficios)}/${Uri.encode(vaga.horario)}/${Uri.encode(vaga.atividades)}/" +
+                                        "${Uri.encode(vaga.requisitos)}/${Uri.encode(vaga.contato)}"
+                            )
+                        },
+                        onEditClick = {
+                            navController.navigate(
+                                "edit/${vaga.id}/${Uri.encode(vaga.titulo)}/${Uri.encode(vaga.empresa)}/" +
+                                        "${Uri.encode(vaga.local)}/${Uri.encode(vaga.beneficios)}/${Uri.encode(vaga.horario)}/" +
+                                        "${Uri.encode(vaga.atividades)}/${Uri.encode(vaga.requisitos)}/${Uri.encode(vaga.contato)}"
+                            )
+                        },
+                        onDeleteClick = {
+                            vagaSelecionadaParaExclusao = vaga
+                        },
+                        isAdmin = isAdmin
+                    )
+                }
+            }
+
+            vagaSelecionadaParaExclusao?.let { vaga ->
+                AlertDialog(
+                    onDismissRequest = { vagaSelecionadaParaExclusao = null },
+                    title = { Text("Confirmar exclusão") },
+                    text = { Text("Deseja excluir a vaga \"${vaga.titulo}\"?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            deletarVaga(
+                                vaga = vaga,
+                                onSuccess = {
+                                    vagas.remove(vaga)
+                                    vagaSelecionadaParaExclusao = null
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Vaga excluída com sucesso!")
+                                    }
+                                },
+                                onFailure = { exception ->
+                                    vagaSelecionadaParaExclusao = null
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Erro ao excluir vaga: ${exception.message}")
+                                    }
+                                }
+                            )
+                        }) {
+                            Text("Confirmar")
+                        }
                     },
-                    onEditClick = {
-                        navController.navigate(
-                            "edit/${vaga.id}/${Uri.encode(vaga.titulo)}/${Uri.encode(vaga.empresa)}/" +
-                                    "${Uri.encode(vaga.local)}/${Uri.encode(vaga.beneficios)}/${Uri.encode(vaga.horario)}/" +
-                                    "${Uri.encode(vaga.atividades)}/${Uri.encode(vaga.requisitos)}/${Uri.encode(vaga.contato)}"
-                        )
-                    },
-                    onDeleteClick = {
-                        // depois implementar deletar
-                    },
-                    isAdmin = isAdmin // <-- Passa aqui se é admin!
+                    dismissButton = {
+                        TextButton(onClick = {
+                            vagaSelecionadaParaExclusao = null
+                        }) {
+                            Text("Cancelar")
+                        }
+                    }
                 )
             }
+
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Icon(Icons.Default.ArrowBack, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text("Voltar")
+        if (isAdmin) {
+            Button(
+                onClick = {
+                    navController.popBackStack()
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+            ) {
+                Text("Voltar")
+            }
         }
+
+        // SnackbarHost visível no layout, mas usado apenas nas exclusões
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
+
+// Função auxiliar de exclusão
+fun deletarVaga(
+    vaga: Vaga,
+    onSuccess: () -> Unit,
+    onFailure: (Exception) -> Unit
+) {
+    FirebaseFirestore.getInstance()
+        .collection("vagas")
+        .document(vaga.id)
+        .delete()
+        .addOnSuccessListener { onSuccess() }
+        .addOnFailureListener { exception -> onFailure(exception) }
+}
+
+
+
+
+
+
+
+
+
