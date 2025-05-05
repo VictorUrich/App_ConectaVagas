@@ -168,7 +168,7 @@ fun EditScreen(
                 Text("Salvar Alterações")
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             OutlinedButton(
                 onClick = {
@@ -176,8 +176,12 @@ fun EditScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancelar")
+                Text("Cancelar / Voltar")
             }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+
         }
     }
 }
