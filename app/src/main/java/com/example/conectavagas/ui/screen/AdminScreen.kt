@@ -48,7 +48,7 @@ class AdminScreen {
                     IconButton(onClick = {
                         FirebaseAuth.getInstance().signOut()
                         navController.navigate("LoginScreen"){
-                            popUpTo("AdminScreen"){inclusive = true}
+                            popUpTo(0){inclusive = true}
                         }
                     }) { Icon(
                         imageVector = Icons.Default.ExitToApp,

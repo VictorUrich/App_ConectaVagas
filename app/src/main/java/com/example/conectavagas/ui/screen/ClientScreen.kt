@@ -21,6 +21,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -86,7 +90,7 @@ fun ClientScreenContent(navController: NavController) {
                IconButton(onClick = {
                    FirebaseAuth.getInstance().signOut()
                    navController.navigate("LoginScreen"){
-                       popUpTo("ClientScreen"){inclusive = true}
+                       popUpTo(0){inclusive = true}
                    }
                }
                ) { Icon(
@@ -107,7 +111,7 @@ fun ClientScreenContent(navController: NavController) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(vagas) { vaga ->
+                items(vagas) {   vaga ->
                     VagaCard(
                         titulo = vaga.titulo,
                         empresa = vaga.empresa,
@@ -174,16 +178,24 @@ fun ClientScreenContent(navController: NavController) {
         }
 
         if (isAdmin) {
-            Button(
-                onClick = {
-                    navController.popBackStack()
-                },
+          //  Button(
+              //  onClick = {
+              //      navController.popBackStack()
+              //  },
+               // modifier = Modifier
+               //     .align(Alignment.BottomCenter)
+               //     .padding(16.dp)
+          //  ) {
+             //   Text("Voltar")
+           // }
+        }
+
+        if (!isAdmin) {
+            BannerAdView(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-            ) {
-                Text("Voltar")
-            }
+                    .padding(bottom = 56.dp) // Deixa espaço para o snackbar não sobrepor
+            )
         }
 
         // SnackbarHost visível no layout, mas usado apenas nas exclusões
@@ -206,6 +218,22 @@ fun deletarVaga(
         .delete()
         .addOnSuccessListener { onSuccess() }
         .addOnFailureListener { exception -> onFailure(exception) }
+}
+
+@Composable
+fun BannerAdView(modifier: Modifier = Modifier) {
+    AndroidView(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(50.dp), // Altura padrão do banner
+        factory = { context ->
+            AdView(context).apply {
+                setAdSize(AdSize.BANNER)
+                adUnitId = "ca-app-pub-4380355603416042/6743796304"
+                loadAd(AdRequest.Builder().build())
+            }
+        }
+    )
 }
 
 

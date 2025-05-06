@@ -22,10 +22,12 @@ import com.example.conectavagas.ui.screen.LoginScreen
 import com.example.conectavagas.ui.screen.RegisterScreen
 import com.example.conectavagas.ui.screen.Vaga
 import com.example.conectavagas.ui.theme.ConectaVagasTheme
+import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this) {}
         enableEdgeToEdge()
         setContent {
             ConectaVagasTheme {
@@ -34,14 +36,16 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "LoginScreen",
+                        startDestination = "LoadingScreen",
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("LoginScreen") {
                             LoginScreen().LoginScreenContent(
                                 onRegisterClick = { navController.navigate("RegisterScreen") },
                                 onForgotPasswordClick = { navController.navigate("ForgotPasswordScreen") },
-                                onLoginClick = { navController.navigate("LoadingScreen") }
+                                onLoginClick = { navController.navigate("LoadingScreen"){
+                                    popUpTo("LoginScreen"){inclusive = true}
+                                } }
                             )
                         }
                         composable("RegisterScreen") {

@@ -59,11 +59,11 @@ class DetalhesVagaScreen {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(onClick = { navController.popBackStack() }, modifier = Modifier.align(CenterHorizontally)) {
-            Icon(Icons.Default.ArrowBack, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text("Voltar")
-        }
+        //Button(onClick = { navController.popBackStack() }, modifier = Modifier.align(CenterHorizontally)) {
+         //   Icon(Icons.Default.ArrowBack, contentDescription = null)
+         //   Spacer(Modifier.width(8.dp))
+         //   Text("Voltar")
+      //  }
 
 
     }
